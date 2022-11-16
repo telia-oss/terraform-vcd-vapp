@@ -1,0 +1,15 @@
+formatter: "markdown table"
+
+header-from: .header.md
+
+sections:
+  hide:
+    - modules
+    - requirements
+
+sort:
+  by: required
+
+output:
+  file: "README.md"
+  mode: replace

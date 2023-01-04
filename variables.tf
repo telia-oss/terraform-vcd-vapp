@@ -26,6 +26,17 @@ variable "vms" {
         cpus                   = optional(number)
         cpu_cores              = optional(number)
         override_template_disk = optional(object({}))
+        disks = optional(
+          list(
+            object(
+              {
+                name        = string
+                bus_number  = number
+                unit_number = number
+              }
+            )
+          )
+        )
         networks = optional(
           map(
             object(

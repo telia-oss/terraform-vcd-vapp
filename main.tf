@@ -54,6 +54,18 @@ resource "vcd_vapp_vm" "this" {
     }
   }
 
+  dynamic "disk" {
+    for_each = try(
+      coalesce(each.value["disks"]),
+      []
+    )
+    content {
+      name        = disk.value["name"]
+      bus_number  = disk.value["bus_number"]
+      unit_number = disk.value["unit_number"]
+    }
+  }
+
   dynamic "network" {
     for_each = try(
       each.value["networks"],

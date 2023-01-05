@@ -19,12 +19,27 @@ variable "vms" {
   type = map(
     object(
       {
-        computer_name          = optional(string)
-        catalog_name           = optional(string)
-        template_name          = optional(string)
-        memory                 = optional(number)
-        cpus                   = optional(number)
-        cpu_cores              = optional(number)
+        computer_name = optional(string)
+        catalog_name  = optional(string)
+        template_name = optional(string)
+        memory        = optional(number)
+        cpus          = optional(number)
+        cpu_cores     = optional(number)
+        internal_disks = optional(
+          list(
+            object(
+              {
+                allow_vm_reboot = optional(bool)
+                bus_type        = string
+                size_in_mb      = number
+                bus_number      = number
+                unit_number     = number
+                iops            = optional(number)
+                storage_profile = optional(string)
+              }
+            )
+          )
+        )
         override_template_disk = optional(object({}))
         disks = optional(
           list(

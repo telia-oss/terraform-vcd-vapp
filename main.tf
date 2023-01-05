@@ -25,6 +25,31 @@ resource "vcd_vapp_org_network" "this" {
   org_network_name = each.value
 }
 
+resource "vcd_vm_internal_disk" "this" {
+  for_each = merge(
+    [
+      for name, vm in var.vms :
+      {
+        for i, disk in try(vm["internal_disks"]) :
+        "${name}-${i}" => merge(
+          disk,
+          { vm_name = name }
+        )
+      }
+    ]...
+  )
+  vdc             = var.vdc_name
+  vapp_name       = vcd_vapp.this.name
+  vm_name         = each.value["vm_name"]
+  allow_vm_reboot = try(each.value["allow_vm_reboot"], null)
+  bus_type        = each.value["bus_type"]
+  size_in_mb      = each.value["size_in_mb"]
+  bus_number      = each.value["bus_number"]
+  unit_number     = each.value["unit_number"]
+  iops            = try(each.value["iops"], null)
+  storage_profile = try(each.value["storage_profile"], null)
+}
+
 resource "vcd_vapp_vm" "this" {
   for_each      = var.vms
   org           = var.org_name

@@ -1,16 +1,3 @@
-locals {
-  all_network_names = toset(
-    flatten(
-      [
-        for vm in var.vms : try(
-          keys(vm["networks"]),
-          []
-        )
-      ]
-    )
-  )
-}
-
 resource "vcd_vapp" "this" {
   org      = var.org_name
   vdc      = var.vdc_name
@@ -19,7 +6,13 @@ resource "vcd_vapp" "this" {
 }
 
 resource "vcd_vapp_org_network" "this" {
-  for_each         = local.all_network_names
+  for_each = toset(
+    flatten(
+      [
+        for vm in var.vms : keys(vm["networks"]) if vm["networks"] != null
+      ]
+    )
+  )
   vdc              = var.vdc_name
   vapp_name        = vcd_vapp.this.name
   org_network_name = each.value
@@ -30,12 +23,12 @@ resource "vcd_vm_internal_disk" "this" {
     [
       for name, vm in var.vms :
       {
-        for i, disk in try(vm["internal_disks"]) :
+        for i, disk in vm["internal_disks"] :
         "${name}-${i}" => merge(
           disk,
           { vm_name = name }
         )
-      }
+      } if vm["internal_disks"] != null
     ]...
   )
   vdc             = var.vdc_name
@@ -93,7 +86,7 @@ resource "vcd_vapp_vm" "this" {
 
   dynamic "network" {
     for_each = try(
-      each.value["networks"],
+      coalesce(each.value["networks"]),
       coalesce(var.networks),
       []
     )

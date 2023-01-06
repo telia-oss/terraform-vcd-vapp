@@ -26,6 +26,7 @@
 | <a name="input_cpu_cores"></a> [cpu\_cores](#input\_cpu\_cores) | Default value for "cpu\_cores" for VMs | `number` | `null` | no |
 | <a name="input_cpus"></a> [cpus](#input\_cpus) | Default value for "cpus" for VMs | `number` | `null` | no |
 | <a name="input_customization"></a> [customization](#input\_customization) | Default values for the VM "customization" block | `object({})` | `null` | no |
+| <a name="input_internal_disks"></a> [internal\_disks](#input\_internal\_disks) | List of default internal disks for all VMs | <pre>list(<br>    object(<br>      {<br>        allow_vm_reboot = optional(bool)<br>        bus_type        = string<br>        size_in_mb      = number<br>        bus_number      = number<br>        unit_number     = number<br>        iops            = optional(number)<br>        storage_profile = optional(string)<br>      }<br>    )<br>  )</pre> | `[]` | no |
 | <a name="input_memory"></a> [memory](#input\_memory) | Default value for "memory" for VMs | `number` | `null` | no |
 | <a name="input_metadata"></a> [metadata](#input\_metadata) | Metadata to assign to all created resources | `map(string)` | `null` | no |
 | <a name="input_networks"></a> [networks](#input\_networks) | Default network configuration for all VMs | `object({})` | `null` | no |

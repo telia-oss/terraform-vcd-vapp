@@ -7,6 +7,20 @@ sections:
     - modules
     - requirements
 
+content: |-
+  {{ .Header }}
+
+  Here is an example of how this module could be used:
+  ```hcl
+  {{ include "examples/basic/main.tf" }}
+  ```  
+
+  {{ .Providers }}
+
+  {{ .Inputs }}
+
+  {{ .Outputs }}
+
 sort:
   by: required
 

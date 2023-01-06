@@ -106,6 +106,24 @@ variable "override_template_disk" {
   default     = null
 }
 
+variable "internal_disks" {
+  type = list(
+    object(
+      {
+        allow_vm_reboot = optional(bool)
+        bus_type        = string
+        size_in_mb      = number
+        bus_number      = number
+        unit_number     = number
+        iops            = optional(number)
+        storage_profile = optional(string)
+      }
+    )
+  )
+  description = "List of default internal disks for all VMs"
+  default     = []
+}
+
 variable "networks" {
   type        = object({})
   description = "Default network configuration for all VMs"

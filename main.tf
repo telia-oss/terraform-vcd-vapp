@@ -23,7 +23,7 @@ resource "vcd_vm_internal_disk" "this" {
     [
       for name, vm in var.vms :
       {
-        for i, disk in vm["internal_disks"] :
+        for i, disk in concat(var.internal_disks, vm["internal_disks"]) :
         "${name}-${i}" => merge(
           disk,
           { vm_name = name }

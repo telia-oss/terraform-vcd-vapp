@@ -1,20 +1,58 @@
 <!-- BEGIN_TF_DOCS -->
- Terraform module that creates a vApp with a set of VMs for vCloud Director
+Create a vApp with a set of VMs in vCloud Director
+
+This module creates the `vcd_vapp` resource as well as `vcd_vapp_vm` resources along with any `vcd_vm_internal_disk`s or `vcd_vapp_org_network`s that are required. Other resources (like `vcd_independent_disk`s to be attached) will have to be created outside of this module. It assumes that the `vcd` provider has already been configured.
+
+VMs are created by passing a `map` called `vms` of their names to their parameters to the module. Configuring VM parameters is done in two ways:
+- Passing a parameter with the appropriate value to the module - this sets a default for all VMs that will be created.
+- Adding an attribute to the appropriate object in the `vms` map - this will set a VM-specific parameter or override the module default.
+
+Names and formats of the parameters were taken from the [vcd](https://registry.terraform.io/providers/vmware/vcd/latest/docs) module to avoid confusion.
+
+Here is an example of how this module could be used:
+```hcl
+module "my_web_app" {
+  source        = "telia-oss/vapp/vcd"
+  org_name      = "my_organisation"
+  vdc_name      = "datacenter1"
+  vapp_name     = "my_web_vapp"
+  catalog_name  = "internal_image_catalog"
+  template_name = "ubuntu-22.04"
+  memory        = 2
+  cpus          = 1
+  cpu_cores     = 2
+  vms = {
+    web1 = {
+      disks = [
+        {
+          name        = "backups"
+          size_in_mb  = 1024 * 100
+          bus_number  = 1
+          unit_number = 0
+        }
+      ]
+      networks = {
+        "external_network" = { ip = "1.0.0.1" }
+      }
+    }
+    web2 = {
+      networks = {
+        "external_network" = { ip = "1.0.0.2" }
+      }
+    }
+  }
+  metadata = {
+    app = "my_app"
+    role = "web"
+  }
+}
+```
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_vcd"></a> [vcd](#provider\_vcd) | n/a |
-
-## Resources
-
-| Name | Type |
-|------|------|
-| [vcd_vapp.this](https://registry.terraform.io/providers/vmware/vcd/latest/docs/resources/vapp) | resource |
-| [vcd_vapp_org_network.this](https://registry.terraform.io/providers/vmware/vcd/latest/docs/resources/vapp_org_network) | resource |
-| [vcd_vapp_vm.this](https://registry.terraform.io/providers/vmware/vcd/latest/docs/resources/vapp_vm) | resource |
-| [vcd_vm_internal_disk.this](https://registry.terraform.io/providers/vmware/vcd/latest/docs/resources/vm_internal_disk) | resource |
 
 ## Inputs
 

@@ -13,7 +13,6 @@ module "my_web_app" {
       disks = [
         {
           name        = "backups"
-          size_in_mb  = 1024 * 100
           bus_number  = 1
           unit_number = 0
         }

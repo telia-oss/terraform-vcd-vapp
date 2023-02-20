@@ -18,6 +18,7 @@ module "my_web_app" {
         }
       ]
       networks = {
+        vapp_name = "my_custom_vapp"
         "external_network" = { ip = "1.0.0.1" }
       }
     }

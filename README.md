@@ -33,11 +33,23 @@ module "my_web_app" {
         }
       ]
       networks = {
-        vapp_name = "my_custom_vapp"
         "external_network" = { ip = "1.0.0.1" }
       }
     }
     web2 = {
+      networks = {
+        "external_network" = { ip = "1.0.0.2" }
+      }
+    }
+
+    custom-web1 = {
+      vapp_name = "my_custom_web_vapp"
+      networks = {
+        "external_network" = { ip = "1.0.0.2" }
+      }
+    }
+    custom-web2 = {
+      vapp_name = "my_custom_web_vapp"
       networks = {
         "external_network" = { ip = "1.0.0.2" }
       }

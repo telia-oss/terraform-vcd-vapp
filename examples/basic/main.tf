@@ -29,14 +29,21 @@ module "my_web_app" {
 
     custom-web1 = {
       vapp_name = "my_custom_web_vapp"
+      disks = [
+        {
+          name        = "backups"
+          bus_number  = 1
+          unit_number = 0
+        }
+      ]
       networks = {
-        "external_network" = { ip = "1.0.0.2" }
+        "external_network" = { ip = "1.0.1.1" }
       }
     }
     custom-web2 = {
       vapp_name = "my_custom_web_vapp"
       networks = {
-        "external_network" = { ip = "1.0.0.2" }
+        "external_network" = { ip = "1.0.1.2" }
       }
     }
   }

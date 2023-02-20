@@ -13,6 +13,7 @@ variable "vdc_name" {
 variable "vapp_name" {
   type        = string
   description = "Name of the vApp that will be created"
+  default     = null
 }
 
 variable "vms" {
@@ -20,6 +21,7 @@ variable "vms" {
     object(
       {
         computer_name = optional(string)
+        vapp_name     = optional(string)
         catalog_name  = optional(string)
         template_name = optional(string)
         memory        = optional(number)

@@ -1,6 +1,6 @@
-output "vapp" {
+output "vapps" {
   value       = vcd_vapp.this
-  description = "The vcd_vapp resource created by this module"
+  description = "The vcd_vapp resources created by this module"
 }
 
 output "vms" {

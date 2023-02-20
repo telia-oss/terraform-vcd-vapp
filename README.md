@@ -7,6 +7,8 @@ VMs are created by passing a `map` called `vms` of their names to their paramete
 - Passing a parameter with the appropriate value to the module - this sets a default for all VMs that will be created.
 - Adding an attribute to the appropriate object in the `vms` map - this will set a VM-specific parameter or override the module default.
 
+`vapp_name` can be specified as a parameter for the module or an attribute for the VM. If neither is specified, `vapp_name` will default to the VM name. Correct amount of `vcd_vapp` resources will be automatically created and the VMs sharing the same `vapp_name` will be associated with a single `vcd_vapp` instance.
+
 Names and formats of the parameters were taken from the [vcd](https://registry.terraform.io/providers/vmware/vcd/latest/docs) module to avoid confusion.
 
 Here is an example of how this module could be used:

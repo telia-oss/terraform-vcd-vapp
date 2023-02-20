@@ -1,39 +1,52 @@
 resource "vcd_vapp" "this" {
+  for_each = toset(
+    compact(
+      [for vm_name, vm in var.vms : coalesce(vm["vapp_name"], var.vapp_name, vm_name)]
+    )
+  )
   org      = var.org_name
   vdc      = var.vdc_name
-  name     = var.vapp_name != null ? var.vapp_name : var.vdc_name
+  name     = each.key
   metadata = var.metadata
 }
 
 resource "vcd_vapp_org_network" "this" {
-  for_each = toset(
-    flatten(
-      [
-        for vm in var.vms : keys(vm["networks"]) if vm["networks"] != null
-      ]
-    )
+  for_each = merge(
+    [
+      for vm_name, vm in var.vms :
+      {
+        for network in keys(vm["networks"]) :
+        "${coalesce(vm["vapp_name"], var.vapp_name, vm_name)}-${network}" => {
+        vapp = vcd_vapp.this[coalesce(vm["vapp_name"], var.vapp_name, vm_name)]
+        network_name = network
+      } if vm["networks"] != null
+      }
+    ]...
   )
   vdc              = var.vdc_name
-  vapp_name        = vcd_vapp.this.name
-  org_network_name = each.value
+  vapp_name        = each.value.vapp.name
+  org_network_name = each.value.network_name
 }
 
 resource "vcd_vm_internal_disk" "this" {
   for_each = merge(
     [
-      for name, vm in var.vms :
+      for name, vm_iter in var.vms :
       {
-        for i, disk in concat(var.internal_disks, vm["internal_disks"]) :
+        for i, disk in concat(var.internal_disks, vm_iter["internal_disks"]) :
         "${name}-${i}" => merge(
-          disk,
-          { vm_name = name }
-        )
-      } if vm["internal_disks"] != null
+        disk,
+        {
+          vm = vcd_vapp_vm.this[name],
+          vapp = vcd_vapp.this[coalesce(vm_iter["vapp_name"], var.vapp_name, name)]
+        }
+      )
+      } if vm_iter["internal_disks"] != null
     ]...
   )
   vdc             = var.vdc_name
-  vapp_name       = vcd_vapp.this.name
-  vm_name         = each.value["vm_name"]
+  vapp_name       = each.value["vapp"].name
+  vm_name         = each.value["vm"].name
   allow_vm_reboot = try(each.value["allow_vm_reboot"], null)
   bus_type        = each.value["bus_type"]
   size_in_mb      = each.value["size_in_mb"]
@@ -47,7 +60,7 @@ resource "vcd_vapp_vm" "this" {
   for_each      = var.vms
   org           = var.org_name
   vdc           = var.vdc_name
-  vapp_name     = vcd_vapp.this.name
+  vapp_name     = vcd_vapp.this[coalesce(each.value["vapp_name"], var.vapp_name, each.key)].name
   name          = each.key
   computer_name = coalesce(each.value["computer_name"], each.key)
   catalog_name  = coalesce(each.value["catalog_name"], var.catalog_name)
@@ -92,7 +105,9 @@ resource "vcd_vapp_vm" "this" {
     )
     content {
       type       = try(network.value["type"], "org")
-      name       = network.key
+      # network name is in network.key, but we need to reference vcd_vapp_org_network
+      # resource to ensure correct ordering for create/destroy
+      name       = vcd_vapp_org_network.this["${coalesce(each.value["vapp_name"], var.vapp_name, each.key)}-${network.key}"].org_network_name
       is_primary = try(network.value["is_primary"], null)
       mac        = try(network.value["mac"], null)
       ip_allocation_mode = try(
